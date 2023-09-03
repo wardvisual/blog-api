@@ -1,12 +1,16 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { ResourceModule } from '@/modules/resource.module';
-import { DatabaseModule } from '@/lib/database/database.module';
-import { ConfigModule } from '@/lib/config/config.module';
+import { dataSourceOptions } from '@/lib/config/typeorm.config';
 
 @Module({
-  imports: [ConfigModule, DatabaseModule, ResourceModule],
-  controllers: [],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    TypeOrmModule.forRootAsync(dataSourceOptions),
+    ResourceModule,
+  ],
   providers: [],
 })
 export class AppModule {}
