@@ -13,7 +13,7 @@ import { APIResponse } from '@/lib/types';
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
-  ) {}
+  ) { }
 
   create(user: CreateUserDto): Observable<any> {
     return from(this.usersRepository.insert(user)).pipe(
@@ -116,12 +116,29 @@ export class UsersService {
   }
 
   remove(id: string): Observable<APIResponse> {
-    return from(this.usersRepository.delete(id)).pipe(
-      map(() => {
-        return {
-          isSuccess: true,
-          message: 'User deleted successfully',
-        };
+    return this.findOne(id).pipe(
+      switchMap((res) => {
+        if (!res.isSuccess)
+          return of({
+            ...res,
+            message: 'Could not delete user',
+          } satisfies APIResponse);
+
+        return from(this.usersRepository.delete(id)).pipe(
+          map(
+            (user) =>
+              ({
+                isSuccess: true,
+                message: 'User deleted successfully',
+                data: user,
+              }) satisfies APIResponse,
+          ),
+          catchError(() =>
+            of({
+              isSuccess: false,
+              message: 'Could not delete user',
+            } satisfies APIResponse)),
+        );
       }),
     );
   }

@@ -4,7 +4,7 @@ import {
   TypeOrmModuleAsyncOptions,
   TypeOrmModuleOptions,
 } from '@nestjs/typeorm';
-import { DatabaseType } from 'typeorm';
+import { DataSource, DataSourceOptions, DatabaseType } from 'typeorm';
 
 export const dataSourceOptions: TypeOrmModuleOptions = {
   imports: [ResourceModule],
