@@ -16,9 +16,6 @@ export class Post {
   @Column()
   image: string;
 
-  @ManyToOne(() => User, (user: User) => user.id)
-  userId: string;
-
-  @Column()
+  @ManyToOne(() => User, (user: User) => user.posts)
   author: User;
 }
