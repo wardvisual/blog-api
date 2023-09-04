@@ -13,7 +13,7 @@ import { APIResponse } from '@/lib/types';
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
-  ) { }
+  ) {}
 
   create(user: CreateUserDto): Observable<any> {
     return from(this.usersRepository.insert(user)).pipe(
@@ -24,14 +24,12 @@ export class UsersService {
         } satisfies APIResponse;
       }),
 
-      catchError((error) => {
-        const result: APIResponse = {
+      catchError((error) =>
+        of({
           isSuccess: false,
           message: 'Could not create user',
-        };
-
-        return of(result);
-      }),
+        } satisfies APIResponse),
+      ),
     );
   }
 
@@ -47,14 +45,12 @@ export class UsersService {
         } satisfies APIResponse;
       }),
 
-      catchError((error) => {
-        const result: APIResponse = {
+      catchError((error) =>
+        of({
           isSuccess: false,
           message: 'Failed to retrieve users',
-        };
-
-        return of(result);
-      }),
+        } satisfies APIResponse),
+      ),
     );
   }
 
@@ -74,14 +70,12 @@ export class UsersService {
         };
       }),
 
-      catchError((error) => {
-        const result: APIResponse = {
+      catchError((error) =>
+        of({
           isSuccess: false,
           message: 'Could not retrieve user',
-        };
-
-        return of(result);
-      }),
+        } satisfies APIResponse),
+      ),
     );
   }
 
@@ -100,16 +94,14 @@ export class UsersService {
               ({
                 isSuccess: true,
                 message: 'User updated successfully',
-                data: user,
               }) satisfies APIResponse,
           ),
-          catchError(() => {
-            const result: APIResponse = {
+          catchError(() =>
+            of({
               isSuccess: false,
               message: 'Could not update user',
-            };
-            return of(result);
-          }),
+            } satisfies APIResponse),
+          ),
         );
       }),
     );
@@ -137,7 +129,8 @@ export class UsersService {
             of({
               isSuccess: false,
               message: 'Could not delete user',
-            } satisfies APIResponse)),
+            } satisfies APIResponse),
+          ),
         );
       }),
     );
