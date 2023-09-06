@@ -1,20 +1,15 @@
 import {
   Column,
-  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 
 import { User } from '@/modules/users/entities/user.entity';
+import BaseEntity from '@/lib/entities/base/base.entity';
 
 @Entity('posts')
-export class Post {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class Post extends BaseEntity {
   @Column()
   title: string;
 
@@ -24,16 +19,17 @@ export class Post {
   @Column()
   image: string;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  @Column({ default: false })
+  isPublished: boolean;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  @ManyToOne(() => User, (author: User) => author.posts, {
+  @ManyToOne(() => User, (author: User) => author.id, {
     cascade: ['insert'],
     eager: true,
+
   })
-  @JoinColumn()
+  @JoinColumn({ name: 'authorId', referencedColumnName: 'id' })
   author: User;
+
+  @Column({ name: 'authorId', nullable: false, select: false })
+  authorId: string;
 }
