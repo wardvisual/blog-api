@@ -1,9 +1,15 @@
 import { Post } from '@/modules/posts/entities/post.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
@@ -18,6 +24,9 @@ export class User {
   @Column()
   password: string;
 
-  @OneToMany(() => Post, (post: Post) => post.author)
-  posts: Post;
+  @OneToMany(() => Post, (post) => post.author, {
+    cascade: true,
+  })
+  @JoinColumn()
+  posts: Post[];
 }

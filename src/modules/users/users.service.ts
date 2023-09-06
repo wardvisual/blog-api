@@ -6,7 +6,15 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Observable, catchError, from, map, of, switchMap } from 'rxjs';
+import {
+  Observable,
+  catchError,
+  from,
+  map,
+  mergeMap,
+  of,
+  switchMap,
+} from 'rxjs';
 import { APIResponse } from '@/lib/types';
 
 @Injectable()
@@ -15,21 +23,34 @@ export class UsersService {
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
   ) {}
 
-  create(user: CreateUserDto): Observable<any> {
-    return from(this.usersRepository.insert(user)).pipe(
-      map(() => {
-        return {
-          isSuccess: true,
-          message: 'User created successfully',
-        } satisfies APIResponse;
+  create(user: CreateUserDto): Observable<APIResponse> {
+    return from(
+      this.usersRepository.findOne({
+        where: [{ username: user.username }],
       }),
+    ).pipe(
+      mergeMap((existingUser) => {
+        if (existingUser)
+          return of({
+            isSuccess: false,
+            message: 'Username was already taken',
+          } satisfies APIResponse);
 
-      catchError((error) =>
-        of({
-          isSuccess: false,
-          message: 'Could not create user',
-        } satisfies APIResponse),
-      ),
+        return from(this.usersRepository.insert(user)).pipe(
+          map(() => {
+            return {
+              isSuccess: true,
+              message: 'User created successfully',
+            } satisfies APIResponse;
+          }),
+          catchError((error) =>
+            of({
+              isSuccess: false,
+              message: 'Could not create user',
+            } satisfies APIResponse),
+          ),
+        );
+      }),
     );
   }
 
@@ -108,12 +129,16 @@ export class UsersService {
   }
 
   remove(id: string): Observable<APIResponse> {
-    return this.findOne(id).pipe(
-      switchMap((res) => {
-        if (!res.isSuccess)
+    return from(
+      this.usersRepository.findOne({
+        where: [{ id }],
+      }),
+    ).pipe(
+      mergeMap((existingUser) => {
+        if (!existingUser)
           return of({
-            ...res,
-            message: 'Could not delete user',
+            isSuccess: false,
+            message: 'User was not found',
           } satisfies APIResponse);
 
         return from(this.usersRepository.delete(id)).pipe(
