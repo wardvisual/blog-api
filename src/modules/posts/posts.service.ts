@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Observable, catchError, from, map, mergeMap, of, switchMap } from 'rxjs';
+import { Observable, catchError, from, map, of, switchMap } from 'rxjs';
 import { Repository } from 'typeorm';
-import { Express } from 'express'
 
+import { APIResponseHelper } from '@/lib/helpers/api-response.helper';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Post } from './entities/post.entity';
@@ -17,53 +17,27 @@ export class PostsService {
 
   create(createPostDto: CreatePostDto): Observable<APIResponse> {
     return from(this.postsRepository.insert(createPostDto)).pipe(
-      map(() => {
-        return {
-          isSuccess: true,
-          message: 'Post created successfully',
-        } satisfies APIResponse;
-      }),
+      map(() => APIResponseHelper.success(HttpStatus.CREATED, 'Post created successfully')),
       catchError(() =>
-        of({
-          isSuccess: false,
-          message: 'Could not create post',
-        } satisfies APIResponse),
+        of(APIResponseHelper.error(HttpStatus.UNPROCESSABLE_ENTITY, 'Could not create post'))
       ),
     );
   }
 
   findAll(): Observable<APIResponse> {
     return from(this.postsRepository.find()).pipe(
-      map((posts: Post[]) => {
-        return {
-          isSuccess: true,
-          message: 'Posts retrieved successfully',
-          data: posts
-        } satisfies APIResponse;
-      }),
+      map((posts: Post[]) => APIResponseHelper.success(HttpStatus.OK, 'Posts retrieved successfully', posts)),
       catchError(() =>
-        of({
-          isSuccess: false,
-          message: 'Could not retrieve posts',
-        } satisfies APIResponse),
+        of(APIResponseHelper.error(HttpStatus.NO_CONTENT, 'Could not retrieve posts'))
       ),
     );
   }
 
   findOne(id: string): Observable<APIResponse> {
     return from(this.postsRepository.findOne({ where: { id } })).pipe(
-      map((post: Post) => {
-        return {
-          isSuccess: true,
-          message: 'Post retrieved successfully',
-          data: post
-        } satisfies APIResponse;
-      }),
+      map((post: Post) => APIResponseHelper.success(HttpStatus.OK, 'Post retrieved successfully', post)),
       catchError(() =>
-        of({
-          isSuccess: false,
-          message: 'Could not retrieve post',
-        } satisfies APIResponse),
+        of(APIResponseHelper.error(HttpStatus.NOT_FOUND, 'Could not retrieve post'))
       ),
     );
   }
@@ -71,25 +45,12 @@ export class PostsService {
   update(id: string, post: UpdatePostDto): Observable<APIResponse> {
     return this.findOne(id).pipe(
       switchMap((res) => {
-        if (!res.isSuccess)
-          return of({
-            ...res,
-            message: 'Could not update post',
-          } satisfies APIResponse);
+        if (!res.isSuccess) return of(APIResponseHelper.error(HttpStatus.UNPROCESSABLE_ENTITY, 'Could not update post'))
 
         return from(this.postsRepository.update(id, post)).pipe(
-          map(
-            () =>
-              ({
-                isSuccess: true,
-                message: 'Post updated successfully',
-              }) satisfies APIResponse,
-          ),
+          map(() => APIResponseHelper.success(HttpStatus.OK, 'Post updated successfully')),
           catchError(() =>
-            of({
-              isSuccess: false,
-              message: 'Could not update post',
-            } satisfies APIResponse),
+            of(APIResponseHelper.error(HttpStatus.UNPROCESSABLE_ENTITY, 'Could not update post'))
           ),
         );
       }),
@@ -97,32 +58,14 @@ export class PostsService {
   }
 
   remove(id: string): Observable<APIResponse> {
-    return from(
-      this.postsRepository.findOne({
-        where: [{ id }],
-      }),
-    ).pipe(
-      mergeMap((existingPost) => {
-        if (!existingPost)
-          return of({
-            isSuccess: false,
-            message: 'Post was not found',
-          } satisfies APIResponse);
+    return this.findOne(id).pipe(
+      switchMap((res) => {
+        if (!res.isSuccess) return of(APIResponseHelper.error(HttpStatus.NOT_FOUND, 'Post was not found'))
 
         return from(this.postsRepository.delete(id)).pipe(
-          map(
-            (user) =>
-              ({
-                isSuccess: true,
-                message: 'Post deleted successfully',
-                data: user,
-              }) satisfies APIResponse,
-          ),
+          map(() => APIResponseHelper.success(HttpStatus.NO_CONTENT, 'Post deleted successfully')),
           catchError(() =>
-            of({
-              isSuccess: false,
-              message: 'Could not delete post',
-            } satisfies APIResponse),
+            of(APIResponseHelper.error(HttpStatus.CONFLICT, 'Could not delete post'))
           ),
         );
       }),
