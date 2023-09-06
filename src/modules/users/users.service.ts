@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Injectable } from '@nestjs/common';
-import { FindOneOptions, Repository } from 'typeorm';
+import { HttpStatus, Injectable } from '@nestjs/common';
+import { Repository } from 'typeorm';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -11,43 +11,27 @@ import {
   catchError,
   from,
   map,
-  mergeMap,
   of,
   switchMap,
 } from 'rxjs';
 import { APIResponse } from '@/lib/types';
+import { APIResponseHelper } from '@/lib/helpers/api-response.helper';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
-  ) {}
+  ) { }
 
   create(user: CreateUserDto): Observable<APIResponse> {
-    return from(
-      this.usersRepository.findOne({
-        where: [{ username: user.username }],
-      }),
-    ).pipe(
-      mergeMap((existingUser) => {
-        if (existingUser)
-          return of({
-            isSuccess: false,
-            message: 'Username was already taken',
-          } satisfies APIResponse);
+    return from(this.usersRepository.findOneBy({ username: user.username })).pipe(
+      switchMap((res) => {
+        if (res) return of(APIResponseHelper.error(HttpStatus.CONFLICT, 'Username was already taken'))
 
         return from(this.usersRepository.insert(user)).pipe(
-          map(() => {
-            return {
-              isSuccess: true,
-              message: 'User created successfully',
-            } satisfies APIResponse;
-          }),
-          catchError((error) =>
-            of({
-              isSuccess: false,
-              message: 'Could not create user',
-            } satisfies APIResponse),
+          map(() => APIResponseHelper.success(HttpStatus.OK, 'User created successfully')),
+          catchError(() =>
+            of(APIResponseHelper.error(HttpStatus.UNPROCESSABLE_ENTITY, 'Could not create user'))
           ),
         );
       }),
@@ -56,46 +40,18 @@ export class UsersService {
 
   findAll(): Observable<APIResponse> {
     return from(this.usersRepository.find()).pipe(
-      map((users) => {
-        users.forEach((user) => delete user.password);
-
-        return {
-          isSuccess: true,
-          message: 'Users retrieved successfully',
-          data: users,
-        } satisfies APIResponse;
-      }),
-
-      catchError((error) =>
-        of({
-          isSuccess: false,
-          message: 'Failed to retrieve users',
-        } satisfies APIResponse),
+      map((users: User[]) => APIResponseHelper.success(HttpStatus.OK, 'Users retrieved successfully', users)),
+      catchError(() =>
+        of(APIResponseHelper.error(HttpStatus.NO_CONTENT, 'Could not retrieve users'))
       ),
     );
   }
 
   findOne(id: string): Observable<APIResponse> {
-    return from(
-      this.usersRepository.findOne({
-        where: { id },
-      }),
-    ).pipe(
-      map((user) => {
-        delete user.password;
-
-        return {
-          isSuccess: true,
-          message: 'User retrieved successfully',
-          data: user,
-        };
-      }),
-
-      catchError((error) =>
-        of({
-          isSuccess: false,
-          message: 'Could not retrieve user',
-        } satisfies APIResponse),
+    return from(this.usersRepository.findOne({ where: { id } })).pipe(
+      map((user: User) => APIResponseHelper.success(HttpStatus.OK, 'User retrieved successfully', user)),
+      catchError(() =>
+        of(APIResponseHelper.error(HttpStatus.NOT_FOUND, 'Could not retrieve user'))
       ),
     );
   }
@@ -103,25 +59,12 @@ export class UsersService {
   update(id: string, user: UpdateUserDto): Observable<APIResponse> {
     return this.findOne(id).pipe(
       switchMap((res) => {
-        if (!res.isSuccess)
-          return of({
-            ...res,
-            message: 'Could not update user',
-          } satisfies APIResponse);
+        if (!res.isSuccess) return of(APIResponseHelper.error(HttpStatus.UNPROCESSABLE_ENTITY, 'Could not update user'))
 
         return from(this.usersRepository.update(id, user)).pipe(
-          map(
-            (user) =>
-              ({
-                isSuccess: true,
-                message: 'User updated successfully',
-              }) satisfies APIResponse,
-          ),
+          map(() => APIResponseHelper.success(HttpStatus.OK, 'User updated successfully')),
           catchError(() =>
-            of({
-              isSuccess: false,
-              message: 'Could not update user',
-            } satisfies APIResponse),
+            of(APIResponseHelper.error(HttpStatus.UNPROCESSABLE_ENTITY, 'Could not update user'))
           ),
         );
       }),
@@ -129,32 +72,14 @@ export class UsersService {
   }
 
   remove(id: string): Observable<APIResponse> {
-    return from(
-      this.usersRepository.findOne({
-        where: [{ id }],
-      }),
-    ).pipe(
-      mergeMap((existingUser) => {
-        if (!existingUser)
-          return of({
-            isSuccess: false,
-            message: 'User was not found',
-          } satisfies APIResponse);
+    return this.findOne(id).pipe(
+      switchMap((res) => {
+        if (!res.isSuccess) return of(APIResponseHelper.error(HttpStatus.NOT_FOUND, 'User was not found'))
 
         return from(this.usersRepository.delete(id)).pipe(
-          map(
-            (user) =>
-              ({
-                isSuccess: true,
-                message: 'User deleted successfully',
-                data: user,
-              }) satisfies APIResponse,
-          ),
+          map(() => APIResponseHelper.success(HttpStatus.NO_CONTENT, 'User deleted successfully')),
           catchError(() =>
-            of({
-              isSuccess: false,
-              message: 'Could not delete user',
-            } satisfies APIResponse),
+            of(APIResponseHelper.error(HttpStatus.CONFLICT, 'Could not delete user'))
           ),
         );
       }),
