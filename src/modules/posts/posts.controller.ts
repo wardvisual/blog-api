@@ -12,11 +12,8 @@ export class PostsController {
 
   @Post()
   @UseInterceptors(FileInterceptor('image', multerOptions))
-  create(@UploadedFile() file: Express.Multer.File, @Body() createPostDto: CreatePostDto) {
-    return {
-      isSuccess: true,
-      file
-    };
+  create(@UploadedFile() { filename }: Express.Multer.File, @Body() createPostDto: CreatePostDto) {
+    return this.postsService.create({ image: filename, ...createPostDto });
   }
 
   @Get()
@@ -30,8 +27,9 @@ export class PostsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
-    return this.postsService.update(id, updatePostDto);
+  @UseInterceptors(FileInterceptor('image', multerOptions))
+  update(@Param('id') id: string, @UploadedFile() { filename }: Express.Multer.File, @Body() updatePostDto: UpdatePostDto) {
+    return this.postsService.update(id, { image: filename, ...updatePostDto });
   }
 
   @Delete(':id')

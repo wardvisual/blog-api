@@ -15,7 +15,6 @@ export class PostsService {
     @InjectRepository(Post) private readonly postsRepository: Repository<Post>,
   ) { }
 
-
   create(createPostDto: CreatePostDto): Observable<APIResponse> {
     return from(this.postsRepository.insert(createPostDto)).pipe(
       map(() => {
@@ -35,10 +34,11 @@ export class PostsService {
 
   findAll(): Observable<APIResponse> {
     return from(this.postsRepository.find()).pipe(
-      map(() => {
+      map((posts: Post[]) => {
         return {
           isSuccess: true,
           message: 'Posts retrieved successfully',
+          data: posts
         } satisfies APIResponse;
       }),
       catchError(() =>
