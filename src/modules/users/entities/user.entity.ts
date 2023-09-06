@@ -3,7 +3,6 @@ import { Post } from '@/modules/posts/entities/post.entity';
 import {
   Column,
   Entity,
-  JoinColumn,
   OneToMany,
 } from 'typeorm';
 
