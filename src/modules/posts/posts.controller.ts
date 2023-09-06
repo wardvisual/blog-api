@@ -18,31 +18,31 @@ export class PostsController extends BaseController {
   @UseInterceptors(FileInterceptor('image', multerOptions))
   create(@UploadedFile() { filename }: Express.Multer.File, @Body() post: CreatePostDto, @Res() response: Response) {
     const result = this.postsService.create({ image: filename, ...post });
-    return this.responseHandler(result, response);
+    return this.send(result, response);
   }
 
   @Get()
   findAll(@Res() response: Response) {
     const result = this.postsService.findAll();
-    return this.responseHandler(result, response);
+    return this.send(result, response);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string, @Res() response: Response) {
     const result = this.postsService.findOne(id);
-    return this.responseHandler(result, response);
+    return this.send(result, response);
   }
 
   @Patch(':id')
   @UseInterceptors(FileInterceptor('image', multerOptions))
   update(@Param('id') id: string, @UploadedFile() { filename }: Express.Multer.File, @Body() post: UpdatePostDto, @Res() response: Response) {
     const result = this.postsService.update(id, { image: filename, ...post });
-    return this.responseHandler(result, response);
+    return this.send(result, response);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string, @Res() response: Response) {
     const result = this.postsService.remove(id);
-    return this.responseHandler(result, response);
+    return this.send(result, response);
   }
 }

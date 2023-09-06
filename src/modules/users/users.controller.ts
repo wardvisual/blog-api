@@ -26,30 +26,30 @@ export class UsersController extends BaseController {
   @Post()
   create(@Body() user: CreateUserDto, @Res() response: Response) {
     const result = this.usersService.create(user)
-    return this.responseHandler(result, response);
+    return this.send(result, response);
   }
 
   @Get()
   findAll(@Res() response: Response) {
     const result = this.usersService.findAll();
-    return this.responseHandler(result, response);
+    return this.send(result, response);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string, @Res() response: Response) {
     const result = this.usersService.findOne(id);
-    return this.responseHandler(result, response);
+    return this.send(result, response);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @Res() response: Response) {
     const result = this.usersService.update(id, updateUserDto);
-    return this.responseHandler(result, response);
+    return this.send(result, response);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string, @Res() response: Response) {
     const result = this.usersService.remove(id);
-    return this.responseHandler(result, response);
+    return this.send(result, response);
   }
 }
