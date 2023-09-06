@@ -4,6 +4,7 @@ import * as fs from 'fs'
 import * as path from "path";
 
 export const multerOptions = {
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
     fileFilter: (req: any, file: any, cb: any) => {
         if (file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
             cb(null, true);
