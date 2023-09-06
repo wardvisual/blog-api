@@ -1,39 +1,48 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator, Res } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Response } from 'express';
 
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { multerOptions } from '@/lib/config/multer.config';
+import { BaseController } from '@/lib/controllers/base.controller';
 
 @Controller('posts')
-export class PostsController {
-  constructor(private readonly postsService: PostsService) { }
+export class PostsController extends BaseController {
+  constructor(private readonly postsService: PostsService) {
+    super()
+  }
 
   @Post()
   @UseInterceptors(FileInterceptor('image', multerOptions))
-  create(@UploadedFile() { filename }: Express.Multer.File, @Body() createPostDto: CreatePostDto) {
-    return this.postsService.create({ image: filename, ...createPostDto });
+  create(@UploadedFile() { filename }: Express.Multer.File, @Body() post: CreatePostDto, @Res() response: Response) {
+    const result = this.postsService.create({ image: filename, ...post });
+    return this.responseHandler(result, response);
   }
 
   @Get()
-  findAll() {
-    return this.postsService.findAll();
+  findAll(@Res() response: Response) {
+    const result = this.postsService.findAll();
+    return this.responseHandler(result, response);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.postsService.findOne(id);
+  findOne(@Param('id') id: string, @Res() response: Response) {
+    const result = this.postsService.findOne(id);
+    return this.responseHandler(result, response);
   }
 
   @Patch(':id')
   @UseInterceptors(FileInterceptor('image', multerOptions))
-  update(@Param('id') id: string, @UploadedFile() { filename }: Express.Multer.File, @Body() updatePostDto: UpdatePostDto) {
-    return this.postsService.update(id, { image: filename, ...updatePostDto });
+  update(@Param('id') id: string, @UploadedFile() { filename }: Express.Multer.File, @Body() post: UpdatePostDto, @Res() response: Response) {
+    const result = this.postsService.update(id, { image: filename, ...post });
+    return this.responseHandler(result, response);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.postsService.remove(id);
+  remove(@Param('id') id: string, @Res() response: Response) {
+    const result = this.postsService.remove(id);
+    return this.responseHandler(result, response);
   }
 }
