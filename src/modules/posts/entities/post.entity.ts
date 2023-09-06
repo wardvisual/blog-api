@@ -1,10 +1,19 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Timestamp,
+  UpdateDateColumn,
+} from 'typeorm';
 
 import { User } from '@/modules/users/entities/user.entity';
 
 @Entity('posts')
 export class Post {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
@@ -16,6 +25,16 @@ export class Post {
   @Column()
   image: string;
 
-  @ManyToOne(() => User, (user: User) => user.posts)
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @ManyToOne(() => User, (author: User) => author.posts, {
+    cascade: ['insert'],
+    eager: true,
+  })
+  @JoinColumn()
   author: User;
 }
