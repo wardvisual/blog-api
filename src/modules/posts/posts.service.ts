@@ -52,10 +52,11 @@ export class PostsService {
 
   findOne(id: string): Observable<APIResponse> {
     return from(this.postsRepository.findOne({ where: { id } })).pipe(
-      map(() => {
+      map((post: Post) => {
         return {
           isSuccess: true,
           message: 'Post retrieved successfully',
+          data: post
         } satisfies APIResponse;
       }),
       catchError(() =>
