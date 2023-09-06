@@ -1,17 +1,14 @@
+import BaseEntity from '@/lib/entities/base/base.entity';
 import { Post } from '@/modules/posts/entities/post.entity';
 import {
   Column,
   Entity,
   JoinColumn,
   OneToMany,
-  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @Entity('users')
-export class User {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class User extends BaseEntity {
   @Column()
   firstName: string;
 
@@ -21,12 +18,11 @@ export class User {
   @Column({ unique: true })
   username: string;
 
-  @Column()
+  @Column({ select: false })
   password: string;
 
   @OneToMany(() => Post, (post) => post.author, {
     cascade: true,
   })
-  @JoinColumn()
   posts: Post[];
 }
