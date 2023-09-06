@@ -4,7 +4,7 @@ import {
   TypeOrmModuleAsyncOptions,
   TypeOrmModuleOptions,
 } from '@nestjs/typeorm';
-import { DataSource, DataSourceOptions, DatabaseType } from 'typeorm';
+import { DatabaseType } from 'typeorm';
 
 export const dataSourceOptions: TypeOrmModuleOptions = {
   imports: [ResourceModule],
@@ -14,10 +14,11 @@ export const dataSourceOptions: TypeOrmModuleOptions = {
     username: configService.get<string>('DATABASE_USERNAME'),
     password: configService.get<string>('DATABASE_PASSWORD'),
     database: configService.get<string>('DATABASE_NAME'),
-    entities: ['dist/modules/**/*.entity{.ts,.js}'],
-    migrations: ['dist/lib/database/migrations/*{.ts,.js}'],
+    // entities: ['src/modules/**/*.entity{.ts,.js}'],
+    // migrations: ['src/lib/database/migrations/**/*{.ts,.js}'],
     autoLoadEntities: true,
     synchronize: true,
+    migrationRun: false,
   }),
   inject: [ConfigService],
 } as TypeOrmModuleAsyncOptions;
