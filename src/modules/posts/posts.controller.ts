@@ -1,4 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator, Res } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  FileTypeValidator,
+  Res,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 
@@ -11,12 +25,16 @@ import { BaseController } from '@/lib/controllers/base.controller';
 @Controller('posts')
 export class PostsController extends BaseController {
   constructor(private readonly postsService: PostsService) {
-    super()
+    super();
   }
 
   @Post()
   @UseInterceptors(FileInterceptor('image', multerOptions))
-  create(@UploadedFile() { filename }: Express.Multer.File, @Body() post: CreatePostDto, @Res() response: Response) {
+  create(
+    @UploadedFile() { filename }: Express.Multer.File,
+    @Body() post: CreatePostDto,
+    @Res() response: Response,
+  ) {
     const result = this.postsService.create({ image: filename, ...post });
     return this.send(result, response);
   }
@@ -35,7 +53,12 @@ export class PostsController extends BaseController {
 
   @Patch(':id')
   @UseInterceptors(FileInterceptor('image', multerOptions))
-  update(@Param('id') id: string, @UploadedFile() { filename }: Express.Multer.File, @Body() post: UpdatePostDto, @Res() response: Response) {
+  update(
+    @Param('id') id: string,
+    @UploadedFile() { filename }: Express.Multer.File,
+    @Body() post: UpdatePostDto,
+    @Res() response: Response,
+  ) {
     const result = this.postsService.update(id, { image: filename, ...post });
     return this.send(result, response);
   }

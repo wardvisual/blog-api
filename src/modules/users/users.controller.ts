@@ -16,7 +16,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 import { BaseController } from '@/lib/controllers/base.controller';
 
-
 @Controller('users')
 export class UsersController extends BaseController {
   constructor(private readonly usersService: UsersService) {
@@ -25,7 +24,7 @@ export class UsersController extends BaseController {
 
   @Post()
   create(@Body() user: CreateUserDto, @Res() response: Response) {
-    const result = this.usersService.create(user)
+    const result = this.usersService.create(user);
     return this.send(result, response);
   }
 
@@ -42,7 +41,11 @@ export class UsersController extends BaseController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @Res() response: Response) {
+  update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @Res() response: Response,
+  ) {
     const result = this.usersService.update(id, updateUserDto);
     return this.send(result, response);
   }

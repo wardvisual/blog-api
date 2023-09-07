@@ -4,7 +4,9 @@ import { Observable, map } from 'rxjs';
 
 @Controller()
 export class BaseController {
-    protected send(result: Observable<any>, @Res() response?: Response) {
-        return result.pipe(map(res => response.status(res.statusCode).json(res)))
-    }
+  protected send(result: Observable<any>, @Res() res?: Response) {
+    return result.pipe(
+      map((result) => res.status(result.statusCode).json(result)),
+    );
+  }
 }

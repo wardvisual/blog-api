@@ -1,10 +1,6 @@
 import BaseEntity from '@/lib/entities/base/base.entity';
 import { Post } from '@/modules/posts/entities/post.entity';
-import {
-  Column,
-  Entity,
-  OneToMany,
-} from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 
 @Entity('users')
 export class User extends BaseEntity {

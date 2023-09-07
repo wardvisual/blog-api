@@ -1,11 +1,13 @@
 import { NestFactory } from '@nestjs/core';
-
-import { HttpExceptionFilter } from '@/lib/filters/http-exception/http-exception.filter';
-import { AppModule } from './app.module';
 import { INestApplication } from '@nestjs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
+
+import { HttpExceptionFilter } from '@/lib/filters/http-exception.filter';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app: INestApplication = await NestFactory.create(AppModule);
+  const app: INestApplication =
+    await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.setGlobalPrefix('api/v1');
 

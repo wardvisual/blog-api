@@ -1,5 +1,13 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpException,
+  HttpStatus,
+  Logger,
+} from '@nestjs/common';
 import { Request, Response } from 'express';
+import { APIResponseHelper } from '@/lib/helpers/api-response.helper';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -25,8 +33,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
         : 'Internal Server Error';
 
     const devErrorResponse: any = {
-      isSuccess: false,
-      statusCode,
       timestamp: new Date().toISOString(),
       path: request.url,
       method: request.method,
@@ -41,16 +47,21 @@ export class HttpExceptionFilter implements ExceptionFilter {
     };
 
     this.logger.log(
-      `\nRequest Method: ${request.method}\nRequestUrl: ${request.url
-      }\n${JSON.stringify(devErrorResponse)}}\n`
+      `\nRequest Method: ${request.method}\nRequestUrl: ${
+        request.url
+      }\n${JSON.stringify(devErrorResponse)}}\n`,
     );
 
     response
       .status(statusCode)
       .json(
         process.env.NODE_ENV === 'development'
-          ? devErrorResponse
-          : prodErrorResponse
+          ? APIResponseHelper.error(
+              statusCode,
+              message['response'].message,
+              devErrorResponse,
+            )
+          : APIResponseHelper.error(statusCode, message),
       );
   }
 }

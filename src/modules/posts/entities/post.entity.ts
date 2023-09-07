@@ -1,9 +1,4 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 import { User } from '@/modules/users/entities/user.entity';
 import BaseEntity from '@/lib/entities/base/base.entity';
@@ -25,7 +20,6 @@ export class Post extends BaseEntity {
   @ManyToOne(() => User, (author: User) => author.id, {
     cascade: ['insert'],
     eager: true,
-
   })
   @JoinColumn({ name: 'authorId', referencedColumnName: 'id' })
   author: User;

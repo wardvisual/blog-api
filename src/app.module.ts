@@ -12,5 +12,6 @@ import { dataSourceOptions } from '@/lib/config/typeorm.config';
     ResourceModule,
   ],
   providers: [],
+  controllers: [],
 })
 export class AppModule {}
