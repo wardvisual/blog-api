@@ -36,3 +36,4 @@ lerna-debug.log*
 
 .env
 db-data
+uploads/*

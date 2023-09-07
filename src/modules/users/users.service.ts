@@ -36,7 +36,6 @@ export class UsersService {
             ),
           ),
           catchError(() =>
-            // eslint-disable-next-line prettier/prettier
             of(
               APIResponseHelper.error(
                 HttpStatus.UNPROCESSABLE_ENTITY,
