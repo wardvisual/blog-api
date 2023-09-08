@@ -46,20 +46,6 @@ export class AuthService {
   }
 
   signUp(user: RegisterDto): Observable<APIResponse> {
-    return this.usersService.findOne({ username: user.username }).pipe(
-      map((res) => {
-        if (res.isSuccess) {
-          return APIResponseHelper.error(
-            HttpStatus.UNAUTHORIZED,
-            'Account already exist',
-          );
-        }
-
-        return APIResponseHelper.success(
-          HttpStatus.OK,
-          'You are now registered!',
-        );
-      }),
-    );
+    return this.usersService.create(user);
   }
 }
