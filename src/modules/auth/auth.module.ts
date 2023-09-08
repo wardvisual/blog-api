@@ -5,6 +5,7 @@ import { UsersModule } from '@/modules/users/users.module';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { configService } from '@/lib/services/env.service';
+import { PasswordService } from '@/lib/services/password.service';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { configService } from '@/lib/services/env.service';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, PasswordService],
   exports: [AuthService],
 })
 export class AuthModule {}

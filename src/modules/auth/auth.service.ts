@@ -7,12 +7,14 @@ import { APIResponse } from '@/lib/types';
 import { RegisterDto } from './dto/register.dto';
 import { BaseService } from '@/lib/services/base.service';
 import { LoginDto } from './dto/login.dto';
+import { PasswordService } from '@/lib/services/password.service';
 
 @Injectable()
 export class AuthService extends BaseService {
   constructor(
     private readonly usersService: UsersService,
     private jwtService: JwtService,
+    private passwordService: PasswordService,
   ) {
     super();
   }
@@ -25,7 +27,7 @@ export class AuthService extends BaseService {
           if (!res.isSuccess)
             throw new UnauthorizedException("Account doesn't exist");
 
-          if (res.data?.password !== user.password)
+          if (!this.passwordService.decrypt(user.password, res.data?.password))
             throw new UnauthorizedException('Incorrect password');
 
           const payload = this.jwtService.sign({
@@ -41,6 +43,7 @@ export class AuthService extends BaseService {
   }
 
   signUp(user: RegisterDto): Observable<APIResponse> {
+    user.password = this.passwordService.encrypt(user.password);
     return this.usersService.create(user);
   }
 }
