@@ -13,9 +13,8 @@ export class AuthService {
   ) {}
 
   signIn(username: string, password: string): Observable<APIResponse> {
-    return this.usersService.findOneBy({ username }).pipe(
+    return this.usersService.findOne({ username }, { password: true }).pipe(
       map((res) => {
-        console.log({ res });
         if (!res.isSuccess) {
           return APIResponseHelper.error(
             HttpStatus.UNAUTHORIZED,
@@ -26,7 +25,7 @@ export class AuthService {
         if (res.data?.password !== password) {
           return APIResponseHelper.error(
             HttpStatus.UNAUTHORIZED,
-            'Password is incorrect',
+            'Incorrect password',
           );
         }
 
