@@ -1,5 +1,4 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
-import { Response } from 'express';
+import { Body, Controller, Post } from '@nestjs/common';
 
 import { Public } from '@/lib/decorators/public.decorator';
 import { BaseController } from '@/lib/controllers/base.controller';
@@ -15,15 +14,13 @@ export class AuthController extends BaseController {
 
   @Public()
   @Post('login')
-  signIn(@Body() user: LoginDto, @Res() response: Response) {
-    const result = this.authService.signIn(user.username, user.password);
-    return this.send(result, response);
+  signIn(@Body() user: LoginDto) {
+    return this.authService.signIn(user);
   }
 
   @Public()
   @Post('register')
-  signUp(@Body() user: RegisterDto, @Res() response: Response) {
-    const result = this.authService.signUp(user);
-    return this.send(result, response);
+  signUp(@Body() user: RegisterDto) {
+    return this.authService.signUp(user);
   }
 }

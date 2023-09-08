@@ -4,7 +4,7 @@ import { UsersModule } from '@/modules/users/users.module';
 
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { configService } from '@/lib/helpers/env.helper';
+import { configService } from '@/lib/services/env.service';
 
 @Module({
   imports: [

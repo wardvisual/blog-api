@@ -6,9 +6,7 @@ import {
   Patch,
   Param,
   Delete,
-  Res,
 } from '@nestjs/common';
-import { Response } from 'express';
 
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -23,36 +21,27 @@ export class UsersController extends BaseController {
   }
 
   @Post()
-  create(@Body() user: CreateUserDto, @Res() response: Response) {
-    const result = this.usersService.create(user);
-    return this.send(result, response);
+  create(@Body() user: CreateUserDto) {
+    return this.usersService.create(user);
   }
 
   @Get()
-  findAll(@Res() response: Response) {
-    const result = this.usersService.findAll();
-    return this.send(result, response);
+  findAll() {
+    return this.usersService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string, @Res() response: Response) {
-    const result = this.usersService.findOne({ id });
-    return this.send(result, response);
+  findOne(@Param('id') id: string) {
+    return this.usersService.findOne({ id });
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateUserDto: UpdateUserDto,
-    @Res() response: Response,
-  ) {
-    const result = this.usersService.update(id, updateUserDto);
-    return this.send(result, response);
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(id, updateUserDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @Res() response: Response) {
-    const result = this.usersService.remove(id);
-    return this.send(result, response);
+  remove(@Param('id') id: string) {
+    return this.usersService.remove(id);
   }
 }

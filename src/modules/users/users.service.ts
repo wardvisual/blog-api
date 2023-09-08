@@ -1,19 +1,27 @@
-import { Observable, catchError, from, map, of, switchMap, take } from 'rxjs';
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { Observable, catchError, from, map, switchMap, take } from 'rxjs';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { APIResponseHelper } from '@/lib/helpers/api-response.helper';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { APIResponse } from '@/lib/types';
+import { BaseService } from '@/lib/services/base.service';
 
 @Injectable()
-export class UsersService {
+export class UsersService extends BaseService {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
-  ) {}
+  ) {
+    super();
+  }
 
   create(user: CreateUserDto): Observable<APIResponse> {
     return from(
@@ -21,29 +29,13 @@ export class UsersService {
     ).pipe(
       take(1),
       switchMap((res) => {
-        if (res)
-          return of(
-            APIResponseHelper.error(
-              HttpStatus.CONFLICT,
-              'Username was already taken',
-            ),
-          );
+        if (res) throw new ConflictException('Username was already taken');
 
         return from(this.usersRepository.insert(user)).pipe(
-          map(() =>
-            APIResponseHelper.success(
-              HttpStatus.OK,
-              'User created successfully',
-            ),
-          ),
-          catchError(() =>
-            of(
-              APIResponseHelper.error(
-                HttpStatus.UNPROCESSABLE_ENTITY,
-                'Could not create user',
-              ),
-            ),
-          ),
+          map(() => this.send('User created successfully')),
+          catchError(() => {
+            throw new UnprocessableEntityException('Could not create user');
+          }),
         );
       }),
     );
@@ -52,21 +44,10 @@ export class UsersService {
   findAll(): Observable<APIResponse> {
     return from(this.usersRepository.find()).pipe(
       take(1),
-      map((users: User[]) =>
-        APIResponseHelper.success(
-          HttpStatus.OK,
-          'Users retrieved successfully',
-          users,
-        ),
-      ),
-      catchError(() =>
-        of(
-          APIResponseHelper.error(
-            HttpStatus.NO_CONTENT,
-            'Could not retrieve users',
-          ),
-        ),
-      ),
+      map((users: User[]) => this.send('Users retrieved successfully', users)),
+      catchError(() => {
+        throw new BadRequestException('Could not retrieve users');
+      }),
     );
   }
 
@@ -78,21 +59,13 @@ export class UsersService {
       }),
     ).pipe(
       take(1),
-      map((user: User) =>
-        APIResponseHelper.success(
-          HttpStatus.OK,
-          'User retrieved successfully',
-          user,
-        ),
-      ),
-      catchError(() =>
-        of(
-          APIResponseHelper.error(
-            HttpStatus.NOT_FOUND,
-            'Could not retrieve user',
-          ),
-        ),
-      ),
+      map((user: User) => {
+        if (!user) throw new NotFoundException('Could not retrieve user');
+        return this.send('User retrieved successfully', user);
+      }),
+      catchError(() => {
+        throw new NotFoundException('Could not retrieve user');
+      }),
     );
   }
 
@@ -101,28 +74,13 @@ export class UsersService {
       take(1),
       switchMap((res) => {
         if (!res.isSuccess)
-          return of(
-            APIResponseHelper.error(
-              HttpStatus.UNPROCESSABLE_ENTITY,
-              'Could not update user',
-            ),
-          );
+          throw new UnprocessableEntityException('Could not update user');
 
         return from(this.usersRepository.update(id, user)).pipe(
-          map(() =>
-            APIResponseHelper.success(
-              HttpStatus.OK,
-              'User updated successfully',
-            ),
-          ),
-          catchError(() =>
-            of(
-              APIResponseHelper.error(
-                HttpStatus.UNPROCESSABLE_ENTITY,
-                'Could not update user',
-              ),
-            ),
-          ),
+          map(() => this.send('User updated successfully')),
+          catchError(() => {
+            throw new UnprocessableEntityException('Could not update user');
+          }),
         );
       }),
     );
@@ -132,26 +90,13 @@ export class UsersService {
     return this.findOne({ id }).pipe(
       take(1),
       switchMap((res) => {
-        if (!res.isSuccess)
-          return of(
-            APIResponseHelper.error(HttpStatus.NOT_FOUND, 'User was not found'),
-          );
+        if (!res.isSuccess) throw new NotFoundException('User was not found');
 
         return from(this.usersRepository.delete(id)).pipe(
-          map(() =>
-            APIResponseHelper.success(
-              HttpStatus.NO_CONTENT,
-              'User deleted successfully',
-            ),
-          ),
-          catchError(() =>
-            of(
-              APIResponseHelper.error(
-                HttpStatus.CONFLICT,
-                'Could not delete user',
-              ),
-            ),
-          ),
+          map(() => this.send('User deleted successfully')),
+          catchError(() => {
+            throw new ConflictException('Could not delete user');
+          }),
         );
       }),
     );
