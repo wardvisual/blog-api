@@ -5,7 +5,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Observable, catchError, from, map, of, switchMap } from 'rxjs';
+import { Observable, catchError, from, map, of, switchMap, take } from 'rxjs';
 import { APIResponse } from '@/lib/types';
 import { APIResponseHelper } from '@/lib/helpers/api-response.helper';
 
@@ -68,8 +68,13 @@ export class UsersService {
     );
   }
 
-  findOne(id: string): Observable<APIResponse> {
-    return from(this.usersRepository.findOne({ where: { id } })).pipe(
+  findOne(user: Partial<User>, selectFields?: any): Observable<APIResponse> {
+    return from(
+      this.usersRepository.findOneOrFail({
+        where: { ...user },
+        select: selectFields,
+      }),
+    ).pipe(
       map((user: User) =>
         APIResponseHelper.success(
           HttpStatus.OK,
@@ -89,7 +94,7 @@ export class UsersService {
   }
 
   update(id: string, user: UpdateUserDto): Observable<APIResponse> {
-    return this.findOne(id).pipe(
+    return this.findOne({ id }).pipe(
       switchMap((res) => {
         if (!res.isSuccess)
           return of(
@@ -120,7 +125,7 @@ export class UsersService {
   }
 
   remove(id: string): Observable<APIResponse> {
-    return this.findOne(id).pipe(
+    return this.findOne({ id }).pipe(
       switchMap((res) => {
         if (!res.isSuccess)
           return of(

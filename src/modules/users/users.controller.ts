@@ -36,7 +36,7 @@ export class UsersController extends BaseController {
 
   @Get(':id')
   findOne(@Param('id') id: string, @Res() response: Response) {
-    const result = this.usersService.findOne(id);
+    const result = this.usersService.findOne({ id });
     return this.send(result, response);
   }
 
