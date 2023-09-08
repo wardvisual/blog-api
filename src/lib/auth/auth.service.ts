@@ -1,9 +1,11 @@
-import { APIResponseHelper } from './../helpers/api-response.helper';
-import { UsersService } from '@/modules/users/users.service';
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { Observable, catchError, from, map, switchMap, of } from 'rxjs';
 import { JwtService } from '@nestjs/jwt';
-import { APIResponse } from '../types';
+import { Observable, map } from 'rxjs';
+
+import { APIResponseHelper } from '@/lib/helpers/api-response.helper';
+import { UsersService } from '@/modules/users/users.service';
+import { APIResponse } from '@/lib/types';
+import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
@@ -38,6 +40,24 @@ export class AuthService {
           HttpStatus.OK,
           'Successfully logged in',
           { accessToken: payload },
+        );
+      }),
+    );
+  }
+
+  signUp(user: RegisterDto): Observable<APIResponse> {
+    return this.usersService.findOne({ username: user.username }).pipe(
+      map((res) => {
+        if (res.isSuccess) {
+          return APIResponseHelper.error(
+            HttpStatus.UNAUTHORIZED,
+            'Account already exist',
+          );
+        }
+
+        return APIResponseHelper.success(
+          HttpStatus.OK,
+          'You are now registered!',
         );
       }),
     );
