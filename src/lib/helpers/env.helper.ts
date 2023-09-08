@@ -1,9 +1,5 @@
+import 'dotenv/config';
+
 import { ConfigService } from '@nestjs/config';
 
-export class EnvHelper {
-  constructor(private configService: ConfigService) {}
-
-  get<T>(name: string): T {
-    return this.configService.get<T>(name);
-  }
-}
+export const configService: ConfigService = new ConfigService(process.env);
