@@ -1,13 +1,13 @@
+import { Observable, catchError, from, map, of, switchMap, take } from 'rxjs';
 import { HttpStatus, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { APIResponseHelper } from '@/lib/helpers/api-response.helper';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Observable, catchError, from, map, of, switchMap, take } from 'rxjs';
 import { APIResponse } from '@/lib/types';
-import { APIResponseHelper } from '@/lib/helpers/api-response.helper';
 
 @Injectable()
 export class UsersService {
@@ -19,6 +19,7 @@ export class UsersService {
     return from(
       this.usersRepository.findOneBy({ username: user.username }),
     ).pipe(
+      take(1),
       switchMap((res) => {
         if (res)
           return of(
@@ -50,6 +51,7 @@ export class UsersService {
 
   findAll(): Observable<APIResponse> {
     return from(this.usersRepository.find()).pipe(
+      take(1),
       map((users: User[]) =>
         APIResponseHelper.success(
           HttpStatus.OK,
@@ -75,6 +77,7 @@ export class UsersService {
         select: selectFields,
       }),
     ).pipe(
+      take(1),
       map((user: User) =>
         APIResponseHelper.success(
           HttpStatus.OK,
@@ -95,6 +98,7 @@ export class UsersService {
 
   update(id: string, user: UpdateUserDto): Observable<APIResponse> {
     return this.findOne({ id }).pipe(
+      take(1),
       switchMap((res) => {
         if (!res.isSuccess)
           return of(
@@ -126,6 +130,7 @@ export class UsersService {
 
   remove(id: string): Observable<APIResponse> {
     return this.findOne({ id }).pipe(
+      take(1),
       switchMap((res) => {
         if (!res.isSuccess)
           return of(
