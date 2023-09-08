@@ -37,3 +37,4 @@ lerna-debug.log*
 .env
 db-data
 uploads/*
+tsconfig.build.tsbuildinfo
