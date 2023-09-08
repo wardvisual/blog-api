@@ -8,7 +8,6 @@ import { ResourceModule } from '@/modules/resource.module';
 import { AuthModule } from '@/modules/auth/auth.module';
 import { AuthGuard } from '@/lib/guards/auth.guard';
 import { BaseService } from '@/lib/services/base.service';
-import { BaseController } from '@/lib/controllers/base.controller';
 
 @Module({
   imports: [
@@ -24,7 +23,6 @@ import { BaseController } from '@/lib/controllers/base.controller';
       useClass: AuthGuard,
     },
     BaseService,
-    BaseController,
   ],
 })
 export class AppModule {}
