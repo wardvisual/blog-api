@@ -8,10 +8,8 @@ import {
   Delete,
   UseInterceptors,
   UploadedFile,
-  Res,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Response } from 'express';
 
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -30,22 +28,18 @@ export class PostsController extends BaseController {
   create(
     @UploadedFile() { filename }: Express.Multer.File,
     @Body() post: CreatePostDto,
-    @Res() response: Response,
   ) {
-    const result = this.postsService.create({ image: filename, ...post });
-    return this.send(result, response);
+    return this.postsService.create({ image: filename, ...post });
   }
 
   @Get()
-  findAll(@Res() response: Response) {
-    const result = this.postsService.findAll();
-    return this.send(result, response);
+  findAll() {
+    return this.postsService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string, @Res() response: Response) {
-    const result = this.postsService.findOne(id);
-    return this.send(result, response);
+  findOne(@Param('id') id: string) {
+    return this.postsService.findOne(id);
   }
 
   @Patch(':id')
@@ -54,15 +48,12 @@ export class PostsController extends BaseController {
     @Param('id') id: string,
     @UploadedFile() { filename }: Express.Multer.File,
     @Body() post: UpdatePostDto,
-    @Res() response: Response,
   ) {
-    const result = this.postsService.update(id, { image: filename, ...post });
-    return this.send(result, response);
+    return this.postsService.update(id, { image: filename, ...post });
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @Res() response: Response) {
-    const result = this.postsService.remove(id);
-    return this.send(result, response);
+  remove(@Param('id') id: string) {
+    return this.postsService.remove(id);
   }
 }

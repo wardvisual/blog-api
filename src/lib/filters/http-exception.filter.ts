@@ -7,7 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { APIResponseHelper } from '@/lib/helpers/api-response.helper';
+import { configService } from '@/lib/services/env.service';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -17,7 +17,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     this.logger = new Logger();
   }
 
-  catch(exception: Error, host: ArgumentsHost): void {
+  catch(exception: HttpException, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();
@@ -32,18 +32,18 @@ export class HttpExceptionFilter implements ExceptionFilter {
         ? exception.message
         : 'Internal Server Error';
 
-    const devErrorResponse: any = {
-      timestamp: new Date().toISOString(),
-      path: request.url,
-      method: request.method,
-      error: exception?.name,
-      message: exception['response'].message,
-    };
-
     const prodErrorResponse: any = {
       isSuccess: false,
       statusCode,
       message,
+    };
+
+    const devErrorResponse: any = {
+      ...prodErrorResponse,
+      timestamp: new Date().toISOString(),
+      path: request.url,
+      method: request.method,
+      error: exception?.name,
     };
 
     this.logger.log(
@@ -55,13 +55,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
     response
       .status(statusCode)
       .json(
-        process.env.NODE_ENV === 'development'
-          ? APIResponseHelper.error(
-              statusCode,
-              message['response'].message,
-              devErrorResponse,
-            )
-          : APIResponseHelper.error(statusCode, message),
+        configService.get('NODE_ENV') === 'development'
+          ? devErrorResponse
+          : prodErrorResponse,
       );
   }
 }

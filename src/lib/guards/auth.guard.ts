@@ -1,17 +1,16 @@
 import {
   CanActivate,
   ExecutionContext,
-  HttpStatus,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Observable, catchError, from, map, of } from 'rxjs';
 import { JwtService } from '@nestjs/jwt';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 
-import { APIResponseHelper } from '@/lib/helpers/api-response.helper';
 import { User } from '@/modules/users/entities/user.entity';
-import { configService } from '@/lib/helpers/env.helper';
+import { configService } from '@/lib/services/env.service';
 import { IS_PUBLIC_KEY } from '@/lib/decorators/public.decorator';
 
 @Injectable()
@@ -33,8 +32,7 @@ export class AuthGuard implements CanActivate {
     if (isPublic) return of(true);
 
     if (!token) {
-      APIResponseHelper.error(HttpStatus.UNAUTHORIZED, 'Invalid token');
-      return of(false);
+      throw new UnauthorizedException('Invalid token');
     }
 
     return from(
@@ -47,8 +45,7 @@ export class AuthGuard implements CanActivate {
         return true;
       }),
       catchError(() => {
-        APIResponseHelper.error(HttpStatus.UNAUTHORIZED, 'Invalid token');
-        return of(false);
+        throw new UnauthorizedException('Invalid token');
       }),
     );
   }
