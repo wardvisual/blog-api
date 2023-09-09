@@ -10,7 +10,7 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api/v1');
 
-  app.use('/public/assets', express.static('public'));
+  app.use('/public/assets', express.static('public/assets'));
 
   await app.listen(configService.get<number>('APP_PORT'));
 }
