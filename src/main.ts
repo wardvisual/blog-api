@@ -1,17 +1,15 @@
 import { NestFactory } from '@nestjs/core';
-import { INestApplication } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import * as express from 'express';
 
-import { HttpExceptionFilter } from '@/lib/filters/http-exception.filter';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app: INestApplication =
-    await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.setGlobalPrefix('api/v1');
 
-  app.useGlobalFilters(new HttpExceptionFilter());
+  app.use('/public/assets', express.static('public'));
 
   await app.listen(3000);
 }
