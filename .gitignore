@@ -37,4 +37,5 @@ lerna-debug.log*
 .env
 db-data
 tsconfig.build.tsbuildinfo
-uploads/*
+public/**/*.png
+public/**/*.jpg
