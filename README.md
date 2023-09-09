@@ -1,1 +1,1 @@
-## Blog API
+![banner](public/display/banner.jpg)
