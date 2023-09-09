@@ -6,7 +6,7 @@ import {
 } from '@nestjs/typeorm';
 import { DatabaseType } from 'typeorm';
 
-export const dataSourceOptions: TypeOrmModuleOptions = {
+export const dataSourceConfig: TypeOrmModuleOptions = {
   imports: [ResourceModule],
   useFactory: async (configService: ConfigService) => ({
     type: configService.get<string>('DATABASE_DRIVER') as DatabaseType,

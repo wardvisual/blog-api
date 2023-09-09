@@ -14,7 +14,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { multerOptions } from '@/lib/config/multer.config';
+import { multerOptions } from '@/lib/configs/multer.config';
 import { BaseController } from '@/lib/controllers/base.controller';
 
 @Controller('posts')

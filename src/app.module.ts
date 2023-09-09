@@ -1,28 +1,18 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { APP_GUARD } from '@nestjs/core';
+import { ConfigModule } from '@nestjs/config';
+import { Module } from '@nestjs/common';
 
-import { dataSourceOptions } from '@/lib/config/typeorm.config';
+import { BaseService as BaseServiceProvider } from '@/lib/services/base.service';
+import { AppGuardProvider } from '@/lib/providers/app-guard.provider';
+import { dataSourceConfig, appConfig } from '@/lib/configs';
 import { ResourceModule } from '@/modules/resource.module';
-import { AuthModule } from '@/modules/auth/auth.module';
-import { AuthGuard } from '@/lib/guards/auth.guard';
-import { BaseService } from '@/lib/services/base.service';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    TypeOrmModule.forRootAsync(dataSourceOptions),
-    AuthModule,
+    ConfigModule.forRoot(appConfig),
+    TypeOrmModule.forRootAsync(dataSourceConfig),
     ResourceModule,
   ],
-  controllers: [],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: AuthGuard,
-    },
-    BaseService,
-  ],
+  providers: [AppGuardProvider, BaseServiceProvider],
 })
 export class AppModule {}
