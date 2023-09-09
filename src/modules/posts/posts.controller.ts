@@ -26,10 +26,13 @@ export class PostsController extends BaseController {
   @Post()
   @UseInterceptors(FileInterceptor('image', multerOptions))
   create(
-    @UploadedFile() { filename }: Express.Multer.File,
+    @UploadedFile() file: Express.Multer.File,
     @Body() post: CreatePostDto,
   ) {
-    return this.postsService.create({ image: filename, ...post });
+    return this.postsService.create({
+      image: file.path,
+      ...post,
+    });
   }
 
   @Get()
