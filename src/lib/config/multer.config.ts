@@ -20,10 +20,8 @@ export const multerOptions = {
   },
   storage: diskStorage({
     destination: (req: any, file: any, cb: any) => {
-      const uploadPath = 'uploads';
-      if (!fs.existsSync(uploadPath)) {
-        fs.mkdirSync(uploadPath);
-      }
+      const uploadPath = `public/assets`;
+      if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath);
       cb(null, uploadPath);
     },
     filename: (req: any, file: any, cb: any) => {
