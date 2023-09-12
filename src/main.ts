@@ -8,6 +8,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
+  app.enableCors();
   app.setGlobalPrefix('api/v1');
 
   app.use('/public/assets', express.static('public/assets'));
