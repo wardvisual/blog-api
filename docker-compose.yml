@@ -1,18 +1,36 @@
-version: '3.1'
+version: '3.8'
 
 services:
+  # blog_api:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   depends_on:
+  #     - db
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - ./:/usr/app
+  #   restart: always
+  #   ports:
+  #     - 3000:3000
+
   db:
-    image: postgres
+    image: postgres:13.2-alpine
     restart: always
     environment:
       POSTGRES_PASSWORD: example
     volumes:
-      - ./db-data:/var/lib/postgresql/data
+      - ./data:/var/lib/postgres
     ports:
       - 5432:5432
+
 
   adminer:
     image: adminer
     restart: always
     ports:
       - 8080:8080
+
+volumes:
+  db-data:
