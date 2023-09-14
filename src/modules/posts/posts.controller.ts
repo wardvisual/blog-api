@@ -16,7 +16,7 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { multerOptions } from '@/lib/configs/multer.config';
 import { BaseController } from '@/lib/controllers/base.controller';
-
+import { Public } from '@/lib/decorators/public.decorator';
 @Controller('posts')
 export class PostsController extends BaseController {
   constructor(private readonly postsService: PostsService) {
@@ -35,6 +35,7 @@ export class PostsController extends BaseController {
     });
   }
 
+  @Public()
   @Get()
   findAll() {
     return this.postsService.findAll();
