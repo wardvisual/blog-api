@@ -11,6 +11,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         type: configService.getOrThrow<string>(
           'DATABASE_DRIVER',
         ) as DatabaseType,
+        host: configService.getOrThrow<string>('DATABASE_HOST'),
         port: configService.getOrThrow<number>('DATABASE_PORT'),
         username: configService.getOrThrow<string>('DATABASE_USERNAME'),
         password: configService.getOrThrow<string>('DATABASE_PASSWORD'),
