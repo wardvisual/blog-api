@@ -18,10 +18,12 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "typeorm": "ts-node ./node_modules/typeorm/cli.js -- -d ./src/typeorm.config.ts",
-    "migration:run": "pnpm typeorm migration:run",
-    "migration:revert": "pnpm typeorm migration:revert",
-    "migration:create": "cd ./src/lib/database/migrations/ && npx typeorm migration:create"
+    "migration:create": "ts-node ./node_modules/typeorm/cli.js migration:create",
+    "migration:generate": "ts-node ./node_modules/typeorm/cli.js migration:generate -d ormconfig.ts",
+    "migration:up": "ts-node ./node_modules/typeorm/cli.js migration:run -d ormconfig.ts",
+    "migration:down": "ts-node ./node_modules/typeorm/cli.js migration:revert -d ormconfig.ts",
+    "db:sync": "ts-node ./node_modules/typeorm/cli.js schema:sync -d ormconfig.ts",
+    "db:drop": "ts-node ./node_modules/typeorm/cli.js schema:drop -d ormconfig.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -33,7 +35,8 @@
     "@nestjs/typeorm": "^10.0.0",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.3.1",
-    "i": "^0.3.7",
+    "express": "^4.18.2",
+    "multer": "1.4.5-lts.1",
     "mysql2": "^3.6.0",
     "pg": "^8.11.3",
     "reflect-metadata": "^0.1.13",
