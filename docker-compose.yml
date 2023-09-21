@@ -1,36 +1,42 @@
-version: '3.8'
+version: '2'
 
 services:
-  # blog_api:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   depends_on:
-  #     - db
-  #   env_file:
-  #     - .env
-  #   volumes:
-  #     - ./:/usr/app
-  #   restart: always
-  #   ports:
-  #     - 3000:3000
+  nest:
+    env_file:
+      - .env
+    build: .
+    container_name: nestvisualblog
+    volumes:
+      - ./:/app
+    depends_on:
+      - db
+    ports:
+      - 3000:3000
+    command: pnpm start:dev
 
   db:
-    image: postgres:13.2-alpine
+    image: postgres:latest
+    container_name: nestvisualblogdb
+    env_file:
+      - .env
     restart: always
-    environment:
-      POSTGRES_PASSWORD: example
-    volumes:
-      - ./data:/var/lib/postgres
     ports:
       - 5432:5432
+    volumes:
+      - nestvisualblog-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
-
-  adminer:
-    image: adminer
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
     restart: always
+    env_file:
+      - .env
     ports:
-      - 8080:8080
+      - '5050:80'
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
 
 volumes:
-  db-data:
+  nestvisualblog-data:
+  pgadmin-data:
