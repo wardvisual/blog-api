@@ -17,7 +17,10 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { multerOptions } from '@/lib/configs/multer.config';
 import { BaseController } from '@/lib/controllers/base.controller';
 import { Public } from '@/lib/decorators/public.decorator';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+
 @Controller('posts')
+@ApiTags('posts')
 export class PostsController extends BaseController {
   constructor(private readonly postsService: PostsService) {
     super();
@@ -35,7 +38,9 @@ export class PostsController extends BaseController {
     });
   }
 
-  @Public()
+  @ApiBearerAuth()
+  @ApiResponse({ status: 200, description: 'Successful Response' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Get()
   findAll() {
     return this.postsService.findAll();
